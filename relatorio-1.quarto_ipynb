@@ -1,0 +1,997 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "---\n",
+        "title: \"Relatorio Geral das lojas do grupo Alurastore\"\n",
+        "author: \"Elton Jorge\"\n",
+        "date: today\n",
+        "format: html\n",
+        "execute: \n",
+        "  echo: false\n",
+        "---\n",
+        "\n",
+        "\n",
+        "Introdução\n",
+        "\n",
+        "Este relatório tem como objetivo principal fornecer suporte aos stakeholders na tomada de decisões mais assertivas e estratégicas para suas empresas. Através da aplicação de técnicas de ciência e análise de dados, são apresentadas recomendações fundamentadas em evidências sólidas, com foco na otimização de resultados e no direcionamento estratégico baseado em dados concretos.\n",
+        "\n",
+        "As análises aqui detalhadas foram construídas a partir dos dados operacionais das quatro unidades pertencentes ao grupo AluraStore de propriedade do Sr. João. O foco está em indicadores-chave de desempenho, oferecendo uma visão ampla e comparativa do funcionamento das lojas.\n",
+        "\n",
+        "Foram considerados diversos aspectos relevantes, como faturamento, volume de vendas, custos com frete, produtos mais vendidos e a localização geográfica dos clientes. Esses elementos fornecem insights valiosos, permitindo uma compreensão mais aprofundada do posicionamento de cada loja no mercado, além de auxiliar na identificação de oportunidades de melhoria e crescimento.\n"
+      ],
+      "id": "c76627d1"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import pandas as pd\n",
+        "import matplotlib.pyplot as plt"
+      ],
+      "id": "401dc603",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "url = \"https://raw.githubusercontent.com/alura-es-cursos/challenge1-data-science/refs/heads/main/base-de-dados-challenge-1/loja_1.csv\"\n",
+        "\n",
+        "url2 = \"https://raw.githubusercontent.com/alura-es-cursos/challenge1-data-science/refs/heads/main/base-de-dados-challenge-1/loja_2.csv\"\n",
+        "\n",
+        "url3 = \"https://raw.githubusercontent.com/alura-es-cursos/challenge1-data-science/refs/heads/main/base-de-dados-challenge-1/loja_3.csv\"\n",
+        "\n",
+        "url4 = \"https://raw.githubusercontent.com/alura-es-cursos/challenge1-data-science/refs/heads/main/base-de-dados-challenge-1/loja_4.csv\"\n",
+        "\n",
+        "loja = pd.read_csv(url)\n",
+        "loja2 = pd.read_csv(url2)\n",
+        "loja3 = pd.read_csv(url3)\n",
+        "loja4 = pd.read_csv(url4)\n"
+      ],
+      "id": "1c9e89d3",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "#criando colunas no dataframe de cada loja\n",
+        "loja[\"loja\"] = \"loja 1\"\n",
+        "loja2[\"loja\"] = \"loja 2\"\n",
+        "loja3[\"loja\"] = \"loja 3\"\n",
+        "loja4[\"loja\"] = \"loja 4\"\n",
+        "\n",
+        "lojas_juntas = pd.concat([loja, loja2, loja3, loja4])\n",
+        "\n",
+        "#calculando  o faturamento por loja\n",
+        "faturamento_por_loja = lojas_juntas.groupby(\"loja\")[\"Preço\"].sum().reset_index()\n",
+        "faturamento_por_loja[\"Preço\"] = faturamento_por_loja[\"Preço\"].apply(lambda x: f\"R${x:,.2f}\".replace(\",\", \"x\").replace(\".\", \",\").replace(\"x\", \".\"))\n",
+        "faturamento_por_loja"
+      ],
+      "id": "8b69adbe",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "O grupo do AluraStore de propriedade do sr.João, faturou no período analisado, um total de R$ 5.871.490,79 (cinco milhões, oitocentos e setenta e um mil, quatrocentos e noventa reais e setenta e nove centavos). Desse montante, a Loja 1 foi responsável por 26,1%, demonstrando um desempenho relevante dentro do conjunto das unidades.\n",
+        "\n",
+        "De maneira geral, observa-se que o faturamento das quatro lojas é relativamente equilibrado, com valores próximos entre si. No entanto, a Loja 1 se destacou como a mais eficiente, liderando em faturamento e contribuindo significativamente para o resultado total do grupo. Por outro lado, a Loja 4 apresentou desempenho inferior em comparação às demais, registrando o menor faturamento entre todas as unidades.\n"
+      ],
+      "id": "680b316f"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "faturamento_por_lojas = lojas_juntas.groupby(\"loja\")[\"Preço\"].sum().reset_index()\n",
+        "\n",
+        "#criando gráfico de barra\n",
+        "barra = plt.bar(faturamento_por_lojas[\"loja\"], faturamento_por_lojas[\"Preço\"], color = \"blue\")\n",
+        "\n",
+        "#adicionando valores acima de cada barra\n",
+        "for barra in barra:\n",
+        "  altura = barra.get_height()\n",
+        "  plt.text(barra.get_x() + barra.get_width()/2, altura + 1000,           #posição\n",
+        "           f\"R$ {altura:,.2f}\",                                          # texto formatado\n",
+        "           ha = \"center\", va = \"bottom\", fontsize = 8, color = \"black\")  # centralizado\n",
+        "\n",
+        "#Rótulos e título\n",
+        "\n",
+        "plt.title (\"Faturamento por loja\")\n",
+        "plt.xlabel(\"Loja\")\n",
+        "plt.ylabel(\"Faturameto(R$)\")\n",
+        "plt.xticks(rotation=45)\n",
+        "plt.tight_layout()\n",
+        "\n",
+        "plt.show()"
+      ],
+      "id": "14a48c4a",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "total_vendas = (\n",
+        "    loja[\"Preço\"].sum()\n",
+        "    + loja2[\"Preço\"].sum()\n",
+        "    + loja3[\"Preço\"].sum()\n",
+        "    + loja4[\"Preço\"].sum()\n",
+        ")\n",
+        "total_formatado = f\"R$ {total_vendas:,.2f}\".replace(\",\", \"x\").replace(\".\", \",\").replace(\"x\", \".\")"
+      ],
+      "id": "c1d9bd77",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "def media (loja_df, total_vendas):\n",
+        "  \"\"\"\n",
+        "    Calcula a porcentagem de participação de uma loja no total de vendas.\n",
+        "\n",
+        "    Parâmetros:\n",
+        "    loja_df (DataFrame): DataFrame da loja, contendo uma coluna \"Preço\" com os valores de vendas.\n",
+        "    total_vendas (float): Valor total das vendas de todas as lojas.\n",
+        "\n",
+        "    Retorna:\n",
+        "    float: Porcentagem que representa a participação da loja no total de vendas.\n",
+        "    \"\"\"\n",
+        "  calculo = (loja_df[\"Preço\"].sum() / total_vendas) *100\n",
+        "  return calculo"
+      ],
+      "id": "df11d21a",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "lojas = [\"Loja 1\", \"Loja 2\", \"Loja 3\",  \"Loja 4\"]\n",
+        "\n",
+        "porcentagens = [\n",
+        "    media(loja,total_vendas),\n",
+        "    media(loja2,total_vendas),\n",
+        "    media(loja3, total_vendas),\n",
+        "    media(loja4,total_vendas)\n",
+        "]"
+      ],
+      "id": "9982633c",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "#criar gráfico de pizza\n",
+        "plt.pie(porcentagens, labels = lojas, autopct =\"%.1f%%\", startangle = 90, shadow = True)\n",
+        "plt.title(\"Participação percentual no faturamento por loja\")\n",
+        "plt.axis(\"equal\")\n",
+        "plt.show()"
+      ],
+      "id": "f607c733",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Com base na análise histórica do faturamento anual, constata-se que a Loja 4, de forma consistente, obteve os menores valores de receita na maioria dos anos observados, o que reforça a necessidade de uma avaliação mais aprofundada sobre suas operações, estratégias de vendas e posicionamento no mercado.\n"
+      ],
+      "id": "f57d981f"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "#garatindo que a colunda de data esteja no formato datetime\n",
+        "lojas_juntas[\"Data da Compra\"] = pd.to_datetime(lojas_juntas[\"Data da Compra\"])\n",
+        "\n",
+        "#criando uma nova coluna com o ano da compra\n",
+        "lojas_juntas[\"Ano\"] = lojas_juntas[\"Data da Compra\"].dt.year\n",
+        "\n",
+        "faturamento_por_ano = lojas_juntas.groupby(\"Ano\")[\"Preço\"].sum().round(2)\n",
+        "\n",
+        "faturamento_por_ano_formatado = faturamento_por_ano.apply(lambda x: f\"R${x:,.2f}\".replace(\",\", \"x\").replace(\".\", \",\").replace(\"x\", \".\"))\n",
+        "\n",
+        "print(faturamento_por_ano_formatado)"
+      ],
+      "id": "333803e6",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "faturamento_ano_loja = lojas_juntas.groupby([\"Ano\", \"loja\"])[\"Preço\"].sum().unstack().round(2)\n",
+        "faturamento_ano_loja_formatado = faturamento_ano_loja.map(lambda x: f\"R${x:,.2f}\".replace(\",\", \"x\").replace(\".\", \",\").replace(\"x\", \".\"))\n",
+        "\n",
+        "print(faturamento_ano_loja_formatado)"
+      ],
+      "id": "17115eb1",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "O grupo AluraStore tem se destacado pela diversidade de categorias de produtos comercializados. Entre essas categorias, três se sobressaem no volume de vendas, ocupando o Top 3 em unidades vendidas: móveis, com 1.886 unidades; eletrônicos, com 1.772 unidades; e brinquedos, com 1.290 unidades.\n",
+        "\n",
+        "No entanto, ao analisarmos o faturamento por categoria, observa-se uma leve mudança nesse ranking. Os três segmentos que mais geram receita para o grupo são: eletrônicos, com R$ 2.214.099,72; eletrodomésticos, com R$ 1.766.337,03; e móveis, com R$ 1.010.214,00. Apesar de figurar entre os mais vendidos, a categoria de brinquedos ocupa apenas a 6ª posição em faturamento, reflexo de seu baixo preço médio por unidade.\n"
+      ],
+      "id": "88b4914c"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "qntd_vendida_por_categoria = lojas_juntas['Categoria do Produto'].value_counts()\n",
+        "print(\"Quantidade vendida por categoria:\\n\")\n",
+        "print(qntd_vendida_por_categoria)\n",
+        "\n",
+        "\n",
+        "faturamento_por_categoria = lojas_juntas.groupby(\"Categoria do Produto\")[\"Preço\"].sum()\n",
+        "faturamento_por_categoria = faturamento_por_categoria.apply(lambda x : f\"R${x:,.2f}\".replace(\",\", \"x\").replace(\".\", \",\").replace(\"x\", \".\"))\n",
+        "\n",
+        "print(\"\\nFaturamento por categoria:\\n\")\n",
+        "print(faturamento_por_categoria)"
+      ],
+      "id": "a47c86a3",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "#quantidade vendida por categoria\n",
+        "quantidade = lojas_juntas[\"Categoria do Produto\"].value_counts().rename(\"Quantidade Vendida\")\n",
+        "\n",
+        "#Faturamento por categoria\n",
+        "faturamento = lojas_juntas.groupby(\"Categoria do Produto\")[\"Preço\"].sum().rename(\"Faturamento(R$)\")\n",
+        "\n",
+        "#Preço medio por categoria\n",
+        "preco_medio = lojas_juntas.groupby(\"Categoria do Produto\")[\"Preço\"].mean().rename(\"Preço Médio(R$)\")\n",
+        "\n",
+        "\n",
+        "#criando nova tabela\n",
+        "tabela_categoria = pd.concat([quantidade, preco_medio, faturamento], axis = 1)\n",
+        "\n",
+        "#faturamento total\n",
+        "faturamento_total = tabela_categoria[\"Faturamento(R$)\"].sum()\n",
+        "\n",
+        "#porcentagem por categoria com base no faturamento\n",
+        "tabela_categoria[\"% Faturamento\"] = (tabela_categoria[\"Faturamento(R$)\"] / faturamento_total)* 100\n",
+        "\n",
+        "tabela_categoria[\"% Faturamento\"]= tabela_categoria[\"% Faturamento\"].apply(\n",
+        "    lambda x: f\"{x:.2f}%\"\n",
+        ")\n",
+        "\n",
+        "#ordenando pela coluna faturamento\n",
+        "tabela_categoria=tabela_categoria.sort_values(\"Faturamento(R$)\",ascending = False)\n",
+        "\n",
+        "#formatando valores para exibiçao(sem afetar os calculos)\n",
+        "tabela_categoria_formatada = tabela_categoria.copy()\n",
+        "tabela_categoria_formatada[\"Faturamento(R$)\"] = tabela_categoria_formatada[\"Faturamento(R$)\"].apply(\n",
+        "    lambda x:f\"R${x:,.2f}\".replace(\",\", \"x\").replace(\".\",\",\").replace(\"x\",\".\")\n",
+        "\n",
+        ")\n",
+        "tabela_categoria_formatada[\"Preço Médio(R$)\"]= tabela_categoria_formatada[\"Preço Médio(R$)\"].apply(\n",
+        "    lambda x:f\"R${x:,.2f}\".replace(\",\",\"x\").replace(\".\",\",\").replace(\"x\", \".\")\n",
+        "\n",
+        ")\n",
+        "\n",
+        "\n",
+        "print(\"\\nResumo por categoria:\\n\")\n",
+        "print(tabela_categoria_formatada)"
+      ],
+      "id": "282900cb",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "tabela_categoria_num = tabela_categoria.copy()\n",
+        "\n",
+        "tabela_categoria_num[\"Faturamento(R$)\"] = (tabela_categoria_num[\"Faturamento(R$)\"].replace(\n",
+        "    {r\"R\\$\": \"\", r\"\\.\": \"\", \",\": \".\"}, regex=True\n",
+        ").astype(float)\n",
+        ")\n",
+        "\n",
+        "barra_faturamento = plt.bar(tabela_categoria_num.index, tabela_categoria_num[\"Faturamento(R$)\"], color = \"blue\")\n",
+        "\n",
+        "for barra in barra_faturamento.patches:\n",
+        "  altura = barra.get_height()\n",
+        "  plt.text(barra.get_x() + barra.get_width()/2, altura + (altura * 0.008),           #posição\n",
+        "           f\"R$ {altura:,.2f}\",                                          # texto formatado\n",
+        "           ha = \"center\", va = \"bottom\", fontsize = 8, color = \"black\")\n",
+        "\n",
+        "plt.title( \"Faturamento(R$) por Categoria\")\n",
+        "plt.xlabel(\"Categoria do Produto\")\n",
+        "plt.ylabel(\"Faturamento(R$)\")\n",
+        "plt.xticks(rotation=75)\n",
+        "plt.tight_layout()\n",
+        "\n",
+        "plt.show()"
+      ],
+      "id": "7cbb527c",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "As quatro unidades do grupo apresentam o mesmo padrão em relação à comercialização de produtos. Não há variações no ranking de vendas por categoria entre as lojas, o que evidencia uma padronização no perfil de consumo e na estratégia de vendas adotada pelo grupo. As diferenças entre as unidades se concentram apenas nas quantidades vendidas e nos preços médios praticados\n"
+      ],
+      "id": "44c2a786"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        " #Obter os nomes únicos das lojas\n",
+        "nomes_lojas = lojas_juntas[\"loja\"].unique()\n",
+        "\n",
+        "for nome in nomes_lojas:\n",
+        "    loja = lojas_juntas[lojas_juntas[\"loja\"] == nome]\n",
+        "\n",
+        "    quantidade = loja[\"Categoria do Produto\"].value_counts().rename(\"Quantidade Vendida\")\n",
+        "    faturamento = loja.groupby(\"Categoria do Produto\")[\"Preço\"].sum().rename(\"Faturamento(R$)\")\n",
+        "    preco_medio = loja.groupby(\"Categoria do Produto\")[\"Preço\"].mean().rename(\"Preço Médio(R$)\")\n",
+        "\n",
+        "    tabela = pd.concat([quantidade, preco_medio, faturamento], axis=1).sort_values(\"Faturamento(R$)\", ascending=False)\n",
+        "\n",
+        "    total_faturamento = tabela[\"Faturamento(R$)\"].sum()\n",
+        "\n",
+        "    tabela[\"% Faturamento\"] = (tabela[\"Faturamento(R$)\"] / total_faturamento)* 100\n",
+        "\n",
+        "    tabela_formatada = tabela.copy()\n",
+        "\n",
+        "    tabela_formatada[\"Faturamento(R$)\"] = tabela_formatada[\"Faturamento(R$)\"].apply(\n",
+        "    lambda x:f\"R${x:,.2f}\".replace(\",\", \"x\").replace(\".\",\",\").replace(\"x\",\".\")\n",
+        "    )\n",
+        "\n",
+        "    tabela_formatada[\"Preço Médio(R$)\"]= tabela_formatada[\"Preço Médio(R$)\"].apply(\n",
+        "    lambda x:f\"R${x:,.2f}\".replace(\",\",\"x\").replace(\".\",\",\").replace(\"x\", \".\")\n",
+        "\n",
+        ")\n",
+        "\n",
+        "    tabela_formatada[\"% Faturamento\"]= tabela_formatada[\"% Faturamento\"].apply(\n",
+        "    lambda x: f\"{x:.2f}%\"\n",
+        ")\n",
+        "    print(f\"\\nResumo da {nome.upper()}\")\n",
+        "    print(tabela_formatada)"
+      ],
+      "id": "04001e28",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Média de Avaliação das Lojas\n",
+        "\n",
+        "A média geral de avaliação do grupo AluraStore é de 4,01. As quatro unidades apresentam médias de avaliação muito próximas entre si, demonstrando um padrão consistente de atendimento e qualidade percebida pelos clientes. As Lojas 2 e 3 lideram o ranking de avaliação, enquanto a Loja 1 apresenta a menor média. No entanto, a diferença entre a melhor e a pior avaliação é mínima, de apenas 0,07 ponto.\n"
+      ],
+      "id": "395bde68"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "avaliacao = lojas_juntas[\"Avaliação da compra\"].sum()\n",
+        "\n",
+        "\n",
+        "media_avaliacao = avaliacao / len(lojas_juntas[\"Avaliação da compra\"])\n",
+        "print(\"\\nA média de avaliações das 4 lojas somadas é:\\n\")\n",
+        "print(f\"{media_avaliacao:,.2f}\")"
+      ],
+      "id": "19af267a",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        " Avaliação individualizada das lojas\n"
+      ],
+      "id": "005ab60a"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "md-indent": " "
+      },
+      "source": [
+        "media_avaliacao_por_lojas = lojas_juntas.groupby(\"loja\")[\"Avaliação da compra\"].mean().round(2)\n",
+        "\n",
+        "for loja,media in media_avaliacao_por_lojas.items():\n",
+        "   print(f\"{loja}: {media:.2f}\")"
+      ],
+      "id": "8db20b95",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "md-indent": " "
+      },
+      "source": [
+        "quantidade_por_nota = (\n",
+        "   lojas_juntas.groupby(\"loja\")[\"Avaliação da compra\"]\n",
+        "   .value_counts()\n",
+        "   .sort_index()\n",
+        "   .groupby(level= 0)\n",
+        "   .head(5)\n",
+        ")\n",
+        "\n",
+        "loja_anterior= None\n",
+        "for(loja,avaliacao), quantidade in quantidade_por_nota.items():\n",
+        " if loja != loja_anterior and loja_anterior is not None:\n",
+        "   print()\n",
+        " print(f\"Loja: {loja}:| avaliação: {avaliacao}| quantidade: {quantidade}\")\n",
+        " loja_anterior = loja"
+      ],
+      "id": "33500fcd",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "md-indent": " "
+      },
+      "source": [
+        "# Agrupamento inicial\n",
+        "avaliacoes_por_vendedor_loja= (\n",
+        "   lojas_juntas\n",
+        "   .groupby([\"Vendedor\", \"loja\", \"Avaliação da compra\"])\n",
+        "   .size()\n",
+        "   .reset_index(name=\"Quantidade\")\n",
+        "   .sort_values(by=[\"loja\", \"Vendedor\", \"Avaliação da compra\"])\n",
+        ")\n",
+        "\n",
+        "#Calcular total de avaliações por loja e vendedor\n",
+        "totais= (\n",
+        "   avaliacoes_por_vendedor_loja\n",
+        "   .groupby([\"Vendedor\", \"loja\"])[\"Quantidade\"]\n",
+        "   .sum()\n",
+        "   .reset_index(name=\"Total_Avaliações\")\n",
+        ")\n",
+        "\n",
+        "#Mescla com o total\n",
+        "avaliacoes_por_vendedor_loja= pd.merge(\n",
+        "   avaliacoes_por_vendedor_loja, totais, on=[\"Vendedor\", \"loja\"]\n",
+        ")\n",
+        "\n",
+        "#Calcula a % da avaliação\n",
+        "avaliacoes_por_vendedor_loja[\"%Avaliação\"] = (\n",
+        "   (avaliacoes_por_vendedor_loja[\"Quantidade\"] / avaliacoes_por_vendedor_loja[\"Total_Avaliações\"]) * 100\n",
+        ").round(3)\n",
+        "\n",
+        "#Cálculo da % acumulada\n",
+        "avaliacoes_por_vendedor_loja[\"%Acumulada\"]= (\n",
+        "   avaliacoes_por_vendedor_loja\n",
+        "   .sort_values(by=[\"loja\", \"Vendedor\", \"Avaliação da compra\"])\n",
+        "   .groupby([\"loja\", \"Vendedor\"])[\"% Avaliação\"]\n",
+        "   .cumsum()\n",
+        ")\n",
+        "\n",
+        "#Loop de controle (pode ser usado depois no código)\n",
+        "loja_anterior= None\n",
+        "vendedor_anterior= None\n",
+        "\n",
+        "for_,row in avaliacoes_por_vendedor_loja.iterrows():\n",
+        "\n",
+        "   loja = row[\"loja\"]\n",
+        "   vendedor = row[\"Vendedor\"]\n",
+        "\n",
+        "   nova_loja = loja != loja_anterior\n",
+        "   novo_vendedor = vendedor != vendedor_anterior\n",
+        "\n",
+        "   if nova_loja or novo_vendedor:\n",
+        "       loja_anterior = loja\n",
+        "       vendedor_anterior = vendedor\n",
+        "       pass  # Placeholder para lógica futura\n"
+      ],
+      "id": "606e5070",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "md-indent": " "
+      },
+      "source": [
+        "#Primeiro, pivoteia para calcular porcentagens\n",
+        "df_total= avaliacoes_por_vendedor_loja.groupby([\"loja\", \"Vendedor\"])[\"Quantidade\"].sum().reset_index(name=\"Total\")\n",
+        "df_merge= pd.merge(avaliacoes_por_vendedor_loja, df_total, on=[\"loja\", \"Vendedor\"])\n",
+        "df_merge[\"Porcentagem\"]= (df_merge[\"Quantidade\"] / df_merge[\"Total\"]) * 100\n",
+        "\n",
+        "#Cria uma coluna combinando loja e vendedor para facilitar o gráfico\n",
+        "df_merge[\"Loja_Vendedor\"]= df_merge[\"loja\"] + \" - \" + df_merge[\"Vendedor\"]\n",
+        "\n",
+        "#Pivot para criar formato de tabela com notas como colunas\n",
+        "df_pivot= df_merge.pivot_table(index=\"Loja_Vendedor\",\n",
+        "                                columns=\"Avaliação da compra\",\n",
+        "                                values=\"Porcentagem\",\n",
+        "                                fill_value=0)\n",
+        "\n",
+        "#Ordenar colunas numericamente (caso as notas estejam fora de ordem)\n",
+        "df_pivot= df_pivot[sorted(df_pivot.columns)]\n",
+        "\n",
+        "#Plotando\n",
+        "df_pivot.plot(kind='bar',stacked=True, figsize=(12, 6), colormap='viridis')\n",
+        "plt.title(\"Distribuiçãopercentual de notas por vendedor em cada loja\")\n",
+        "plt.ylabel(\"Porcentagem(%)\")\n",
+        "plt.xlabel(\"Loja- Vendedor\")\n",
+        "plt.legend(title=\"Nota\")\n",
+        "plt.tight_layout()\n",
+        "plt.show()"
+      ],
+      "id": "4cc4e3cf",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        " Produtos Mais e Menos Vendidos\n",
+        "\n",
+        " A AluraStore tem como marca registrada a ampla diversificação de seus produtos. De brinquedos infantis a eletrônicos avançados, passando por utensílios de cozinha e instrumentos musicais, é possível encontrar uma grande variedade de itens nas unidades da AluraStore. Essa diversidade oferece ao cliente a conveniência de adquirir produtos de diferentes segmentos em um único lugar, com preços acessíveis e competitivos no mercado.\n",
+        "\n",
+        "O Top 5 dos produtos mais vendidos inclui: cômoda (210 unidades), carrinho de controle remoto e micro-ondas (ambos com 206 unidades), bateria (203 unidades) e cama king (201 unidades).\n"
+      ],
+      "id": "f89bc76f"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "lojas_juntas[\"Produto\"].value_counts().head(10)"
+      ],
+      "id": "cec69b4b",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Por outro lado, os produtos com menor volume de vendas nas unidades são: o livro ‘Ciência de Dados com Python’, guitarra, mochila, headset e o celular ABXY\n"
+      ],
+      "id": "a87f5edb"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "#Top 10 Produtos menos vendidos do Grupo(4 lojas somadas)\n",
+        "lojas_juntas[\"Produto\"].value_counts().tail(10)"
+      ],
+      "id": "708b650e",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "produto_counts = lojas_juntas[\"Produto\"].value_counts()\n",
+        "\n",
+        "produto_counts.plot(kind = \"bar\", color = \"blue\")\n",
+        "\n",
+        "plt.title(\"Quantidade de Produtos Vendidos\", fontsize = 16)\n",
+        "plt.xlabel(\"Produto\", fontsize = 12)\n",
+        "plt.ylabel(\"Quantidade Vendida\", fontsize = 12)\n",
+        "\n",
+        "plt.xticks(rotation = 90, ha = \"right\")\n",
+        "plt.tight_layout()\n",
+        "plt.show()"
+      ],
+      "id": "edb606d7",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "A análise da tabela a seguir revela uma distinção importante entre volume de vendas e geração de faturamento. Os produtos mais vendidos não são, necessariamente, os que mais contribuem para a receita do grupo. Itens como o celular Plus X42, geladeiras e outros eletrodomésticos de maior valor agregado não figuram no Top 10 em número de unidades vendidas, mas aparecem entre os maiores responsáveis pelo faturamento. Esse fenômeno é explicado pelo alto preço médio desses produtos, que compensam a menor quantidade vendida, demonstrando a importância de considerar tanto a demanda quanto o ticket médio na definição de estratégias comerciais e de estoque.\n"
+      ],
+      "id": "2d8a0980"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "preco_medio_produto = lojas_juntas.groupby(\"Produto\")[\"Preço\"].mean().reset_index()\n",
+        "preco_medio_produto = preco_medio_produto.set_index(\"Produto\") [\"Preço\"]\n",
+        "preco_medio_produto = preco_medio_produto.round(2)\n",
+        "\n",
+        "produto_counts = produto_counts.reindex(preco_medio_produto.index, fill_value=0)\n",
+        "\n",
+        "def faturamento_por_produto ():\n",
+        "  produto_faturado = produto_counts * preco_medio_produto\n",
+        "  return produto_faturado\n",
+        "\n",
+        "faturamento_produto = faturamento_por_produto()"
+      ],
+      "id": "b1b842f3",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "vendas_totais = faturamento_produto.sum()\n",
+        "porcentagem_produto_faturamento = ( faturamento_produto / vendas_totais )*100\n",
+        "\n",
+        "tabela_faturamento = pd.DataFrame({\n",
+        "    \"Produto\": produto_counts.index,\n",
+        "    \"Quantidade Vendida\" : produto_counts.values,\n",
+        "    \"Preço Médio(R$)\": preco_medio_produto.values,\n",
+        "    \"Faturamento(R$)\" : faturamento_produto.values,\n",
+        "    \"% do Faturamento\" : porcentagem_produto_faturamento.round(3)\n",
+        "})\n",
+        "\n",
+        "tabela_faturamento = tabela_faturamento.sort_values(by = \"Quantidade Vendida\", ascending = False)\n",
+        "\n",
+        "tabela_faturamento[\"Preço Médio(R$)\"]= tabela_faturamento[\"Preço Médio(R$)\"].apply(\n",
+        "    lambda x:f\"R${x:,.2f}\".replace(\",\",\"x\").replace(\".\",\",\").replace(\"x\", \".\")\n",
+        ")\n",
+        "\n",
+        "tabela_faturamento[\"Faturamento(R$)\"]= tabela_faturamento[\"Faturamento(R$)\"].apply(\n",
+        "    lambda x:f\"R${x:,.2f}\".replace(\",\",\"x\").replace(\".\",\",\").replace(\"x\", \".\")\n",
+        ")\n",
+        "\n",
+        "tabela_faturamento[\"% do Faturamento\"] = tabela_faturamento[\"% do Faturamento\"].apply(lambda x: f\"{x:,.3f}%\")\n",
+        "\n",
+        "print(tabela_faturamento)"
+      ],
+      "id": "efdee28e",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "tabela_faturamento [\"Faturamento(R$)\"] = tabela_faturamento[\"Faturamento(R$)\"].apply(lambda x: float (x.replace(\"R$\", \"\").replace(\".\" , \"\").replace(\",\", \".\")))\n",
+        "\n",
+        "produto_top10 = tabela_faturamento.sort_values(by = \"Quantidade Vendida\", ascending= False).head(10)\n",
+        "\n",
+        "fig,ax1 = plt.subplots(figsize = (20, 10))\n",
+        "\n",
+        "ax1.bar(produto_top10[\"Produto\"], produto_top10[\"Quantidade Vendida\"], color = \"blue\", label = \"Quantidade Vendida\")\n",
+        "ax1.set_ylabel(\"Quantidade Vendida\", color = \"skyblue\")\n",
+        "ax1.tick_params(axis = \"y\", labelcolor = \"blue\")\n",
+        "\n",
+        "\n",
+        "ax2 = ax1.twinx()\n",
+        "ax2.plot(produto_top10[\"Produto\"], produto_top10[\"Faturamento(R$)\"], color = \"darkblue\", marker = \"o\", label = \"faturamento_produto\")\n",
+        "ax2.set_ylabel(\"Faturamento(R$)\", color = \"darkblue\")\n",
+        "ax2.tick_params(axis = \"y\", labelcolor =\"darkblue\")\n",
+        "\n",
+        "plt.title(\"Top 10 Produtos mais vendidos: Quantidade vs Faturamento\")\n",
+        "plt.xticks(rotation = 30, ha =\"right\", fontsize = 12)\n",
+        "fig.tight_layout()\n",
+        "\n",
+        "fig.subplots_adjust(bottom =0.25)\n",
+        "\n",
+        "lines_1, labels_1 = ax1.get_legend_handles_labels()\n",
+        "lines_2, labels_2 = ax2.get_legend_handles_labels()\n",
+        "plt.legend(lines_1 + lines_2, labels_1 + labels_2, loc= \"upper left\")\n",
+        "\n",
+        "plt.show()"
+      ],
+      "id": "8ae63a7f",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Com base nos dados analisados, constatamos que o Top 5 de produtos mais vendidos varia consideravelmente entre as unidades do grupo. As Lojas 3 e 4, em especial, apresentam um perfil de vendas focado em itens de menor valor agregado, com preços médios mais baixos em comparação ao Top 5 das Lojas 1 e 2. Essa diferença no mix de produtos vendidos influencia diretamente o desempenho financeiro dessas unidades.\n",
+        "\n",
+        "Apesar de manterem volumes de vendas expressivos, as Lojas 3 e 4 geram menor faturamento, justamente por concentrarem suas vendas em produtos de menor ticket médio. Esse padrão evidencia a importância de estratégias personalizadas por unidade, considerando o perfil do público atendido, a localização e o potencial de valorização do portfólio de produtos em cada loja.\n"
+      ],
+      "id": "3749c3b1"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "tabelas_por_loja =(\n",
+        "    lojas_juntas\n",
+        "    .groupby([\"loja\", \"Produto\"])\n",
+        "    .agg(\n",
+        "        Quantidade_Vendida = (\"Produto\", \"count\"),\n",
+        "        Preço_Médio =(\"Preço\", \"mean\"),\n",
+        "        Faturamento = (\"Preço\", \"sum\")\n",
+        "    )\n",
+        "    .reset_index()\n",
+        ")\n",
+        "\n",
+        "tabelas_por_loja[\"Preço_Médio\"] = tabelas_por_loja[\"Preço_Médio\"].apply(\n",
+        "    lambda x: f\"R${x:,.2f}\".replace(\",\", \"x\").replace(\".\", \",\").replace(\"x\", \".\")\n",
+        ")\n",
+        "\n",
+        "tabelas_por_loja[\"Faturamento\"] = tabelas_por_loja[\"Faturamento\"]. apply(\n",
+        "    lambda x: f\"R${x:,.2f}\".replace(\",\", \"x\").replace(\".\", \",\").replace(\"x\", \".\")\n",
+        ")\n",
+        "\n",
+        "\n",
+        "lojas_disponiveis = tabelas_por_loja[\"loja\"].unique()\n",
+        "\n",
+        "for loja in lojas_disponiveis:\n",
+        "  dados_loja = tabelas_por_loja[tabelas_por_loja[\"loja\"] == loja]\n",
+        "\n",
+        "  top5 = dados_loja.sort_values(by = \"Quantidade_Vendida\", ascending = False).head(5)\n",
+        "  top5[\"Categoria\"] = \"Mais Vendidos\"\n",
+        "\n",
+        "  bottom_5 = dados_loja.sort_values(by = \"Quantidade_Vendida\", ascending = True).head(5)\n",
+        "  bottom_5[\"Categoria\"] = \"Menos Vendidos\"\n",
+        "\n",
+        "\n",
+        "  print(f\"\\n--- Tabela da {loja.upper()}---\\n\")\n",
+        "\n",
+        "  print(\">> Mais Vendidos:\" )\n",
+        "  print(top5[[\"Produto\", \"Quantidade_Vendida\", \"Preço_Médio\", \"Faturamento\"]].to_string(index = False))\n",
+        "\n",
+        "\n",
+        "  print(\"\\n>> Menos Vendidos\")\n",
+        "  print(bottom_5[[\"Produto\", \"Quantidade_Vendida\", \"Preço_Médio\", \"Faturamento\"]].to_string(index = False))"
+      ],
+      "id": "b2ee3c14",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Frete Médio por Loja\n",
+        "\n",
+        "De maneira geral, os gastos com frete no grupo AluraStore demonstram um alto nível de padronização entre as quatro unidades. Cada loja destinou, em média, 5,33% do seu faturamento para despesas com frete, o que evidencia a aplicação consistente da política logística definida pelo grupo. Essa uniformidade indica um controle eficiente dos custos operacionais e o alinhamento das unidades com os princípios estratégicos da empresa.\n",
+        "\n",
+        "No período analisado, o valor total desembolsado com fretes foi de R$ 312.930,66, distribuído de forma proporcional entre as lojas. A correlação direta entre o faturamento e os gastos com frete — ou seja, a loja que mais vende também é a que mais investe em logística — reforça a ausência de distorções ou desequilíbrios nesse aspecto. Esse cenário revela não apenas uma gestão eficiente dos custos logísticos, mas também a maturidade do grupo na aplicação de uma política operacional coerente, transparente e economicamente sustentável.\n"
+      ],
+      "id": "b88e6bba"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "#Cálculo do gastos com frete\n",
+        "frete_total = lojas_juntas[\"Frete\"].sum()\n",
+        "print(f\"Total gasto com frete do grupo(4 lojas): R${frete_total:,.2f}\".replace(\",\", \"x\"). replace(\".\", \",\").replace(\"x\", \".\"))"
+      ],
+      "id": "7a374189",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "#Gastos de frete por loja\n",
+        "frete_por_loja = lojas_juntas.groupby(\"loja\")[\"Frete\"].sum().round(2)\n",
+        "frete_por_loja_format = frete_por_loja.apply(lambda x :f\"R${x:,.2f}\".replace(\",\", \"x\").replace(\".\", \",\").replace(\"x\",\".\"))\n",
+        "frete_por_loja_format"
+      ],
+      "id": "ce79405b",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "frete_medio_loja =lojas_juntas.groupby(\"loja\")[\"Frete\"].mean().round(2)\n",
+        "frete_medio_loja_format = frete_medio_loja.apply(lambda x: f\"R${x: ,.2f}\")\n",
+        "frete_medio_loja_format"
+      ],
+      "id": "58c2fae5",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "#calculando o faturamento(receita) sem formataçao\n",
+        "receita_por_loja = lojas_juntas.groupby(\"loja\")[\"Preço\"].sum().round(2)\n",
+        "\n",
+        "# Quanto o gasto de cada loja implica no valor do frete do grupo\n",
+        "porc_frete = ((frete_por_loja / frete_total) * 100).round(2)\n",
+        "\n",
+        "# porcentagem de gasto com frete rem relação ao faturamento da loja\n",
+        "porc_frete_faturamento = ((frete_por_loja / receita_por_loja) * 100).round(2)\n",
+        "\n",
+        "lojas = frete_por_loja.index\n",
+        "\n",
+        "#lucro bruto estimado (faturamento - frete)\n",
+        "lucro_bruto = (receita_por_loja - frete_por_loja).reindex(lojas)\n",
+        "\n",
+        "tabela_frete_faturamento = pd.DataFrame({\n",
+        "    \"Valor Médio do Frete\": frete_medio_loja_format,\n",
+        "    \"Frete Total(R$)\" : frete_por_loja,\n",
+        "    \"% do Frete Total\" : porc_frete,\n",
+        "    \"Faturamento Total(R$)\" : receita_por_loja,\n",
+        "    \"% Frete / Faturamento\" : porc_frete_faturamento,\n",
+        "    \"Lucro Bruto Estimado(R$)\" : lucro_bruto\n",
+        "\n",
+        "\n",
+        "}).round(2)\n",
+        "\n",
+        "tabela_frete_faturamento[\"Frete Total(R$)\"] = tabela_frete_faturamento[ \"Frete Total(R$)\"].apply(lambda x:f\"R${x:,.2f}\".replace(\",\", \"x\").replace(\".\",\",\").replace(\"x\", \".\") )\n",
+        "tabela_frete_faturamento[\"% do Frete Total\"] = tabela_frete_faturamento[\"% do Frete Total\"].apply(lambda x: f\"{x:,.2f}%\")\n",
+        "tabela_frete_faturamento[\"Faturamento Total(R$)\"] = tabela_frete_faturamento[\"Faturamento Total(R$)\"].apply(lambda x:f\"R${x:,.2f}\".replace(\",\", \"x\").replace(\".\", \",\").replace(\"x\", \".\"))\n",
+        "tabela_frete_faturamento[\"% Frete / Faturamento\"] = tabela_frete_faturamento[\"% Frete / Faturamento\"].apply(lambda x: f\"{x: ,.2f}%\")\n",
+        "tabela_frete_faturamento[\"Lucro Bruto Estimado(R$)\"] = tabela_frete_faturamento[\"Lucro Bruto Estimado(R$)\"].apply(lambda x: f\"R${x: ,.2f}\".replace(\",\", \"x\").replace(\".\", \",\").replace(\"x\", \".\"))\n",
+        "\n",
+        "print(tabela_frete_faturamento)"
+      ],
+      "id": "371dd451",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Dados geográficos\n",
+        "\n",
+        "O grupo AluraStore possui representatividade comercial em todas as regiões do Brasil e em todos os estados, o que demonstra um alcance nacional relevante. No entanto, observa-se uma forte concentração de clientes e faturamento na região Sudeste, destacando-se como o principal mercado do grupo. Diante disso, recomenda-se a ampliação da presença nas demais regiões do país, especialmente Norte, Nordeste e Centro-Oeste, com estratégias direcionadas de marketing, logística e expansão, visando equilibrar a distribuição geográfica das vendas e explorar o potencial de crescimento em mercados ainda subexplorados.\n"
+      ],
+      "id": "d449e018"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "venda_por_estado = {}\n",
+        "\n",
+        "for estado in lojas_juntas[\"Local da compra\"]:\n",
+        "  if estado in venda_por_estado:\n",
+        "    venda_por_estado[estado] += 1\n",
+        "\n",
+        "  else:\n",
+        "    venda_por_estado[estado] = 1\n",
+        "\n",
+        "for estado, quantidade in sorted(venda_por_estado.items()):\n",
+        "  print(f\"{estado} : {quantidade}\")"
+      ],
+      "id": "77e6987d",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "sul = [\"RS\", \"SC\", \"PR\"]\n",
+        "sudeste = [\"SP\", \"RJ\", \"MG\", \"ES\"]\n",
+        "norte = [\"AC\", \"AP\", \"AM\", \"PA\", \"RO\", \"RR\", \"TO\"]\n",
+        "nordeste = [\"AL\", \"BA\", \"CE\", \"MA\", \"PB\", \"PE\", \"PI\", \"RN\", \"SE\"]\n",
+        "centro_oeste = [\"DF\", \"GO\", \"MT\", \"MS\"]\n",
+        "\n",
+        "vendas_por_regiao = {\"Sul\": 0, \"Sudeste\":0, \"Norte\": 0, \"Nordeste\": 0, \"Centro-Oeste\": 0}\n",
+        "\n",
+        "for estado in lojas_juntas[\"Local da compra\"]:\n",
+        "\n",
+        "  if estado in sul:\n",
+        "    vendas_por_regiao[\"Sul\"] += 1\n",
+        "\n",
+        "  elif estado in sudeste:\n",
+        "    vendas_por_regiao[\"Sudeste\"] += 1\n",
+        "\n",
+        "  elif estado in norte:\n",
+        "    vendas_por_regiao[\"Norte\"] += 1\n",
+        "\n",
+        "  elif estado in nordeste:\n",
+        "    vendas_por_regiao[\"Nordeste\"] += 1\n",
+        "\n",
+        "  elif estado in centro_oeste:\n",
+        "    vendas_por_regiao[\"Centro-Oeste\"] +=1\n",
+        "\n",
+        "for regiao, quantidade in vendas_por_regiao.items():\n",
+        "  print(f\"{regiao}: {quantidade}\")"
+      ],
+      "id": "0c7be411",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "venda_loja_regiao = {}\n",
+        "\n",
+        "for _, row in lojas_juntas.iterrows():\n",
+        "  loja = row[\"loja\"]\n",
+        "  estado = row[\"Local da compra\"]\n",
+        "\n",
+        "  if estado in sul:\n",
+        "    regiao = \"Sul\"\n",
+        "\n",
+        "  elif estado in sudeste:\n",
+        "    regiao = \"Sudeste\"\n",
+        "\n",
+        "  elif estado in norte:\n",
+        "    regiao = \"Norte\"\n",
+        "\n",
+        "  elif estado in nordeste:\n",
+        "    regiao = \"Nordeste\"\n",
+        "\n",
+        "  elif estado in centro_oeste:\n",
+        "    regiao = \"Centro-Oeste\"\n",
+        "\n",
+        "  else:\n",
+        "    continue\n",
+        "\n",
+        "  if loja not in venda_loja_regiao:\n",
+        "    venda_loja_regiao[loja] = {\"Sul\": 0, \"Sudeste\":0, \"Norte\": 0, \"Nordeste\": 0, \"Centro-Oeste\": 0}\n",
+        "\n",
+        "  venda_loja_regiao[loja][regiao]  += 1\n",
+        "\n",
+        "tabela_vendas_regiao = pd.DataFrame(venda_loja_regiao).T.fillna(0).astype(int)\n",
+        "print(tabela_vendas_regiao)"
+      ],
+      "id": "4e03f3ab",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Consideraçoes Finais\n",
+        "\n",
+        "Com base na análise dos dados apresentados neste relatório, recomendamos ao Sr. João a descontinuação ou venda da Loja 4. A unidade apresenta o menor faturamento entre as quatro lojas do grupo e uma tendência consistente de queda nas receitas nos últimos dois anos — um sinal claro de perda de desempenho comercial.\n",
+        "\n",
+        "Além disso, embora o índice de satisfação do cliente da Loja 4 esteja próximo ao das demais unidades, ela ainda ocupa a terceira pior posição. Esse conjunto de fatores aponta possíveis falhas operacionais, de atendimento ou de adequação ao perfil da clientela local.\n",
+        "\n",
+        "Considerando o baixo faturamento, a tendência de queda e o desempenho inferior em satisfação, a continuidade da operação não se mostra vantajosa do ponto de vista estratégico. A venda da loja pode liberar recursos que seriam melhor aproveitados no fortalecimento de unidades mais rentáveis ou na expansão da marca em regiões com maior potencial de crescimento."
+      ],
+      "id": "54b793d1"
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python3",
+      "language": "python",
+      "display_name": "Python 3 (ipykernel)",
+      "path": "C:\\Users\\ELTON\\anaconda3\\share\\jupyter\\kernels\\python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}

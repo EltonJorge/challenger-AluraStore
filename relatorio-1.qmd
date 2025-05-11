@@ -1,0 +1,721 @@
+---
+title: "Relatorio Geral das lojas do grupo Alurastore"
+author: "Elton Jorge"
+date: today
+format: html
+execute: 
+  echo: false
+---
+
+Introdução
+
+Este relatório tem como objetivo principal fornecer suporte aos stakeholders na tomada de decisões mais assertivas e estratégicas para suas empresas. Através da aplicação de técnicas de ciência e análise de dados, são apresentadas recomendações fundamentadas em evidências sólidas, com foco na otimização de resultados e no direcionamento estratégico baseado em dados concretos.
+
+As análises aqui detalhadas foram construídas a partir dos dados operacionais das quatro unidades pertencentes ao grupo AluraStore de propriedade do Sr. João. O foco está em indicadores-chave de desempenho, oferecendo uma visão ampla e comparativa do funcionamento das lojas.
+
+Foram considerados diversos aspectos relevantes, como faturamento, volume de vendas, custos com frete, produtos mais vendidos e a localização geográfica dos clientes. Esses elementos fornecem insights valiosos, permitindo uma compreensão mais aprofundada do posicionamento de cada loja no mercado, além de auxiliar na identificação de oportunidades de melhoria e crescimento.
+
+
+```{python}
+import pandas as pd
+import matplotlib.pyplot as plt
+
+```
+```{python}
+
+url = "https://raw.githubusercontent.com/alura-es-cursos/challenge1-data-science/refs/heads/main/base-de-dados-challenge-1/loja_1.csv"
+
+url2 = "https://raw.githubusercontent.com/alura-es-cursos/challenge1-data-science/refs/heads/main/base-de-dados-challenge-1/loja_2.csv"
+
+url3 = "https://raw.githubusercontent.com/alura-es-cursos/challenge1-data-science/refs/heads/main/base-de-dados-challenge-1/loja_3.csv"
+
+url4 = "https://raw.githubusercontent.com/alura-es-cursos/challenge1-data-science/refs/heads/main/base-de-dados-challenge-1/loja_4.csv"
+
+loja = pd.read_csv(url)
+loja2 = pd.read_csv(url2)
+loja3 = pd.read_csv(url3)
+loja4 = pd.read_csv(url4)
+
+
+```
+
+```{python}
+#criando colunas no dataframe de cada loja
+loja["loja"] = "loja 1"
+loja2["loja"] = "loja 2"
+loja3["loja"] = "loja 3"
+loja4["loja"] = "loja 4"
+
+lojas_juntas = pd.concat([loja, loja2, loja3, loja4])
+
+#calculando  o faturamento por loja
+faturamento_por_loja = lojas_juntas.groupby("loja")["Preço"].sum().reset_index()
+faturamento_por_loja["Preço"] = faturamento_por_loja["Preço"].apply(lambda x: f"R${x:,.2f}".replace(",", "x").replace(".", ",").replace("x", "."))
+faturamento_por_loja
+```
+
+O grupo do AluraStore de propriedade do sr.João, faturou no período analisado, um total de R$ 5.871.490,79 (cinco milhões, oitocentos e setenta e um mil, quatrocentos e noventa reais e setenta e nove centavos). Desse montante, a Loja 1 foi responsável por 26,1%, demonstrando um desempenho relevante dentro do conjunto das unidades.
+
+De maneira geral, observa-se que o faturamento das quatro lojas é relativamente equilibrado, com valores próximos entre si. No entanto, a Loja 1 se destacou como a mais eficiente, liderando em faturamento e contribuindo significativamente para o resultado total do grupo. Por outro lado, a Loja 4 apresentou desempenho inferior em comparação às demais, registrando o menor faturamento entre todas as unidades.
+
+
+```{python}
+faturamento_por_lojas = lojas_juntas.groupby("loja")["Preço"].sum().reset_index()
+
+#criando gráfico de barra
+barra = plt.bar(faturamento_por_lojas["loja"], faturamento_por_lojas["Preço"], color = "blue")
+
+#adicionando valores acima de cada barra
+for barra in barra:
+  altura = barra.get_height()
+  plt.text(barra.get_x() + barra.get_width()/2, altura + 1000,           #posição
+           f"R$ {altura:,.2f}",                                          # texto formatado
+           ha = "center", va = "bottom", fontsize = 8, color = "black")  # centralizado
+
+#Rótulos e título
+
+plt.title ("Faturamento por loja")
+plt.xlabel("Loja")
+plt.ylabel("Faturameto(R$)")
+plt.xticks(rotation=45)
+plt.tight_layout()
+
+plt.show()
+```
+
+```{python}
+total_vendas = (
+    loja["Preço"].sum()
+    + loja2["Preço"].sum()
+    + loja3["Preço"].sum()
+    + loja4["Preço"].sum()
+)
+total_formatado = f"R$ {total_vendas:,.2f}".replace(",", "x").replace(".", ",").replace("x", ".")
+```
+```{python}
+def media (loja_df, total_vendas):
+  """
+    Calcula a porcentagem de participação de uma loja no total de vendas.
+
+    Parâmetros:
+    loja_df (DataFrame): DataFrame da loja, contendo uma coluna "Preço" com os valores de vendas.
+    total_vendas (float): Valor total das vendas de todas as lojas.
+
+    Retorna:
+    float: Porcentagem que representa a participação da loja no total de vendas.
+    """
+  calculo = (loja_df["Preço"].sum() / total_vendas) *100
+  return calculo
+
+```
+
+```{python}
+
+lojas = ["Loja 1", "Loja 2", "Loja 3",  "Loja 4"]
+
+porcentagens = [
+    media(loja,total_vendas),
+    media(loja2,total_vendas),
+    media(loja3, total_vendas),
+    media(loja4,total_vendas)
+]
+```
+
+```{python}
+#criar gráfico de pizza
+plt.pie(porcentagens, labels = lojas, autopct ="%.1f%%", startangle = 90, shadow = True)
+plt.title("Participação percentual no faturamento por loja")
+plt.axis("equal")
+plt.show()
+```
+Com base na análise histórica do faturamento anual, constata-se que a Loja 4, de forma consistente, obteve os menores valores de receita na maioria dos anos observados, o que reforça a necessidade de uma avaliação mais aprofundada sobre suas operações, estratégias de vendas e posicionamento no mercado.
+
+```{python}
+#garatindo que a colunda de data esteja no formato datetime
+lojas_juntas["Data da Compra"] = pd.to_datetime(lojas_juntas["Data da Compra"])
+
+#criando uma nova coluna com o ano da compra
+lojas_juntas["Ano"] = lojas_juntas["Data da Compra"].dt.year
+
+faturamento_por_ano = lojas_juntas.groupby("Ano")["Preço"].sum().round(2)
+
+faturamento_por_ano_formatado = faturamento_por_ano.apply(lambda x: f"R${x:,.2f}".replace(",", "x").replace(".", ",").replace("x", "."))
+
+print(faturamento_por_ano_formatado)
+```
+
+```{python}
+faturamento_ano_loja = lojas_juntas.groupby(["Ano", "loja"])["Preço"].sum().unstack().round(2)
+faturamento_ano_loja_formatado = faturamento_ano_loja.map(lambda x: f"R${x:,.2f}".replace(",", "x").replace(".", ",").replace("x", "."))
+
+print(faturamento_ano_loja_formatado)
+```
+
+O grupo AluraStore tem se destacado pela diversidade de categorias de produtos comercializados. Entre essas categorias, três se sobressaem no volume de vendas, ocupando o Top 3 em unidades vendidas: móveis, com 1.886 unidades; eletrônicos, com 1.772 unidades; e brinquedos, com 1.290 unidades.
+
+No entanto, ao analisarmos o faturamento por categoria, observa-se uma leve mudança nesse ranking. Os três segmentos que mais geram receita para o grupo são: eletrônicos, com R$ 2.214.099,72; eletrodomésticos, com R$ 1.766.337,03; e móveis, com R$ 1.010.214,00. Apesar de figurar entre os mais vendidos, a categoria de brinquedos ocupa apenas a 6ª posição em faturamento, reflexo de seu baixo preço médio por unidade.
+
+
+```{python}
+qntd_vendida_por_categoria = lojas_juntas['Categoria do Produto'].value_counts()
+print("Quantidade vendida por categoria:\n")
+print(qntd_vendida_por_categoria)
+
+
+faturamento_por_categoria = lojas_juntas.groupby("Categoria do Produto")["Preço"].sum()
+faturamento_por_categoria = faturamento_por_categoria.apply(lambda x : f"R${x:,.2f}".replace(",", "x").replace(".", ",").replace("x", "."))
+
+print("\nFaturamento por categoria:\n")
+print(faturamento_por_categoria)
+```
+
+
+```{python}
+#quantidade vendida por categoria
+quantidade = lojas_juntas["Categoria do Produto"].value_counts().rename("Quantidade Vendida")
+
+#Faturamento por categoria
+faturamento = lojas_juntas.groupby("Categoria do Produto")["Preço"].sum().rename("Faturamento(R$)")
+
+#Preço medio por categoria
+preco_medio = lojas_juntas.groupby("Categoria do Produto")["Preço"].mean().rename("Preço Médio(R$)")
+
+
+#criando nova tabela
+tabela_categoria = pd.concat([quantidade, preco_medio, faturamento], axis = 1)
+
+#faturamento total
+faturamento_total = tabela_categoria["Faturamento(R$)"].sum()
+
+#porcentagem por categoria com base no faturamento
+tabela_categoria["% Faturamento"] = (tabela_categoria["Faturamento(R$)"] / faturamento_total)* 100
+
+tabela_categoria["% Faturamento"]= tabela_categoria["% Faturamento"].apply(
+    lambda x: f"{x:.2f}%"
+)
+
+#ordenando pela coluna faturamento
+tabela_categoria=tabela_categoria.sort_values("Faturamento(R$)",ascending = False)
+
+#formatando valores para exibiçao(sem afetar os calculos)
+tabela_categoria_formatada = tabela_categoria.copy()
+tabela_categoria_formatada["Faturamento(R$)"] = tabela_categoria_formatada["Faturamento(R$)"].apply(
+    lambda x:f"R${x:,.2f}".replace(",", "x").replace(".",",").replace("x",".")
+
+)
+tabela_categoria_formatada["Preço Médio(R$)"]= tabela_categoria_formatada["Preço Médio(R$)"].apply(
+    lambda x:f"R${x:,.2f}".replace(",","x").replace(".",",").replace("x", ".")
+
+)
+
+
+print("\nResumo por categoria:\n")
+print(tabela_categoria_formatada)
+```
+
+
+```{python}
+tabela_categoria_num = tabela_categoria.copy()
+
+tabela_categoria_num["Faturamento(R$)"] = (tabela_categoria_num["Faturamento(R$)"].replace(
+    {r"R\$": "", r"\.": "", ",": "."}, regex=True
+).astype(float)
+)
+
+barra_faturamento = plt.bar(tabela_categoria_num.index, tabela_categoria_num["Faturamento(R$)"], color = "blue")
+
+for barra in barra_faturamento.patches:
+  altura = barra.get_height()
+  plt.text(barra.get_x() + barra.get_width()/2, altura + (altura * 0.008),           #posição
+           f"R$ {altura:,.2f}",                                          # texto formatado
+           ha = "center", va = "bottom", fontsize = 8, color = "black")
+
+plt.title( "Faturamento(R$) por Categoria")
+plt.xlabel("Categoria do Produto")
+plt.ylabel("Faturamento(R$)")
+plt.xticks(rotation=75)
+plt.tight_layout()
+
+plt.show()
+```
+
+As quatro unidades do grupo apresentam o mesmo padrão em relação à comercialização de produtos. Não há variações no ranking de vendas por categoria entre as lojas, o que evidencia uma padronização no perfil de consumo e na estratégia de vendas adotada pelo grupo. As diferenças entre as unidades se concentram apenas nas quantidades vendidas e nos preços médios praticados
+
+
+```{python}
+ #Obter os nomes únicos das lojas
+nomes_lojas = lojas_juntas["loja"].unique()
+
+for nome in nomes_lojas:
+    loja = lojas_juntas[lojas_juntas["loja"] == nome]
+
+    quantidade = loja["Categoria do Produto"].value_counts().rename("Quantidade Vendida")
+    faturamento = loja.groupby("Categoria do Produto")["Preço"].sum().rename("Faturamento(R$)")
+    preco_medio = loja.groupby("Categoria do Produto")["Preço"].mean().rename("Preço Médio(R$)")
+
+    tabela = pd.concat([quantidade, preco_medio, faturamento], axis=1).sort_values("Faturamento(R$)", ascending=False)
+
+    total_faturamento = tabela["Faturamento(R$)"].sum()
+
+    tabela["% Faturamento"] = (tabela["Faturamento(R$)"] / total_faturamento)* 100
+
+    tabela_formatada = tabela.copy()
+
+    tabela_formatada["Faturamento(R$)"] = tabela_formatada["Faturamento(R$)"].apply(
+    lambda x:f"R${x:,.2f}".replace(",", "x").replace(".",",").replace("x",".")
+    )
+
+    tabela_formatada["Preço Médio(R$)"]= tabela_formatada["Preço Médio(R$)"].apply(
+    lambda x:f"R${x:,.2f}".replace(",","x").replace(".",",").replace("x", ".")
+
+)
+
+    tabela_formatada["% Faturamento"]= tabela_formatada["% Faturamento"].apply(
+    lambda x: f"{x:.2f}%"
+)
+    print(f"\nResumo da {nome.upper()}")
+    print(tabela_formatada)
+
+```
+Média de Avaliação das Lojas
+
+A média geral de avaliação do grupo AluraStore é de 4,01. As quatro unidades apresentam médias de avaliação muito próximas entre si, demonstrando um padrão consistente de atendimento e qualidade percebida pelos clientes. As Lojas 2 e 3 lideram o ranking de avaliação, enquanto a Loja 1 apresenta a menor média. No entanto, a diferença entre a melhor e a pior avaliação é mínima, de apenas 0,07 ponto.
+
+
+```{python}
+avaliacao = lojas_juntas["Avaliação da compra"].sum()
+
+
+media_avaliacao = avaliacao / len(lojas_juntas["Avaliação da compra"])
+print("\nA média de avaliações das 4 lojas somadas é:\n")
+print(f"{media_avaliacao:,.2f}")
+```
+ Avaliação individualizada das lojas
+
+
+ ```{python}
+ media_avaliacao_por_lojas = lojas_juntas.groupby("loja")["Avaliação da compra"].mean().round(2)
+
+for  loja,media in media_avaliacao_por_lojas.items():
+    print(f"{loja}: {media:.2f}")
+
+ ```
+
+ ```{python}
+ quantidade_por_nota = (
+    lojas_juntas.groupby("loja")["Avaliação da compra"]
+    .value_counts()
+    .sort_index()
+    .groupby(level= 0)
+    .head(5)
+)
+
+loja_anterior = None
+for (loja,avaliacao), quantidade in quantidade_por_nota.items():
+  if loja != loja_anterior and loja_anterior is not None:
+    print()
+  print(f"Loja: {loja}:| avaliação: {avaliacao}| quantidade: {quantidade}")
+  loja_anterior = loja
+ ```
+
+
+ ```{python}
+ # Agrupamento inicial
+avaliacoes_por_vendedor_loja = (
+    lojas_juntas
+    .groupby(["Vendedor", "loja", "Avaliação da compra"])
+    .size()
+    .reset_index(name="Quantidade")
+    .sort_values(by=["loja", "Vendedor", "Avaliação da compra"])
+)
+
+# Calcular total de avaliações por loja e vendedor
+totais = (
+    avaliacoes_por_vendedor_loja
+    .groupby(["Vendedor", "loja"])["Quantidade"]
+    .sum()
+    .reset_index(name="Total_Avaliações")
+)
+
+# Mescla com o total
+avaliacoes_por_vendedor_loja = pd.merge(
+    avaliacoes_por_vendedor_loja, totais, on=["Vendedor", "loja"]
+)
+
+# Calcula a % da avaliação
+avaliacoes_por_vendedor_loja["% Avaliação"] = (
+    (avaliacoes_por_vendedor_loja["Quantidade"] / avaliacoes_por_vendedor_loja["Total_Avaliações"]) * 100
+).round(3)
+
+# Cálculo da % acumulada
+avaliacoes_por_vendedor_loja["%Acumulada"] = (
+    avaliacoes_por_vendedor_loja
+    .sort_values(by=["loja", "Vendedor", "Avaliação da compra"])
+    .groupby(["loja", "Vendedor"])["% Avaliação"]
+    .cumsum()
+)
+
+# Loop de controle (pode ser usado depois no código)
+loja_anterior = None
+vendedor_anterior = None
+
+for _,row in avaliacoes_por_vendedor_loja.iterrows():
+
+    loja = row["loja"]
+    vendedor = row["Vendedor"]
+
+    nova_loja = loja != loja_anterior
+    novo_vendedor = vendedor != vendedor_anterior
+
+    if nova_loja or novo_vendedor:
+        loja_anterior = loja
+        vendedor_anterior = vendedor
+        pass  # Placeholder para lógica futura
+
+
+ ```
+
+
+ ```{python}
+ 
+# Primeiro, pivoteia para calcular porcentagens
+df_total = avaliacoes_por_vendedor_loja.groupby(["loja", "Vendedor"])["Quantidade"].sum().reset_index(name="Total")
+df_merge = pd.merge(avaliacoes_por_vendedor_loja, df_total, on=["loja", "Vendedor"])
+df_merge["Porcentagem"] = (df_merge["Quantidade"] / df_merge["Total"]) * 100
+
+# Cria uma coluna combinando loja e vendedor para facilitar o gráfico
+df_merge["Loja_Vendedor"] = df_merge["loja"] + " - " + df_merge["Vendedor"]
+
+# Pivot para criar formato de tabela com notas como colunas
+df_pivot = df_merge.pivot_table(index="Loja_Vendedor",
+                                 columns="Avaliação da compra",
+                                 values="Porcentagem",
+                                 fill_value=0)
+
+# Ordenar colunas numericamente (caso as notas estejam fora de ordem)
+df_pivot = df_pivot[sorted(df_pivot.columns)]
+
+# Plotando
+df_pivot.plot(kind='bar', stacked=True, figsize=(12, 6), colormap='viridis')
+plt.title("Distribuição percentual de notas por vendedor em cada loja")
+plt.ylabel("Porcentagem (%)")
+plt.xlabel("Loja - Vendedor")
+plt.legend(title="Nota")
+plt.tight_layout()
+plt.show()
+
+ ```
+ 
+ Produtos Mais e Menos Vendidos
+
+ A AluraStore tem como marca registrada a ampla diversificação de seus produtos. De brinquedos infantis a eletrônicos avançados, passando por utensílios de cozinha e instrumentos musicais, é possível encontrar uma grande variedade de itens nas unidades da AluraStore. Essa diversidade oferece ao cliente a conveniência de adquirir produtos de diferentes segmentos em um único lugar, com preços acessíveis e competitivos no mercado.
+
+O Top 5 dos produtos mais vendidos inclui: cômoda (210 unidades), carrinho de controle remoto e micro-ondas (ambos com 206 unidades), bateria (203 unidades) e cama king (201 unidades).
+
+
+```{python}
+lojas_juntas["Produto"].value_counts().head(10)
+
+```
+
+Por outro lado, os produtos com menor volume de vendas nas unidades são: o livro ‘Ciência de Dados com Python’, guitarra, mochila, headset e o celular ABXY
+
+```{python}
+#Top 10 Produtos menos vendidos do Grupo(4 lojas somadas)
+lojas_juntas["Produto"].value_counts().tail(10)
+```
+
+
+```{python}
+produto_counts = lojas_juntas["Produto"].value_counts()
+
+produto_counts.plot(kind = "bar", color = "blue")
+
+plt.title("Quantidade de Produtos Vendidos", fontsize = 16)
+plt.xlabel("Produto", fontsize = 12)
+plt.ylabel("Quantidade Vendida", fontsize = 12)
+
+plt.xticks(rotation = 90, ha = "right")
+plt.tight_layout()
+plt.show()
+```
+
+A análise da tabela a seguir revela uma distinção importante entre volume de vendas e geração de faturamento. Os produtos mais vendidos não são, necessariamente, os que mais contribuem para a receita do grupo. Itens como o celular Plus X42, geladeiras e outros eletrodomésticos de maior valor agregado não figuram no Top 10 em número de unidades vendidas, mas aparecem entre os maiores responsáveis pelo faturamento. Esse fenômeno é explicado pelo alto preço médio desses produtos, que compensam a menor quantidade vendida, demonstrando a importância de considerar tanto a demanda quanto o ticket médio na definição de estratégias comerciais e de estoque.
+
+
+```{python}
+preco_medio_produto = lojas_juntas.groupby("Produto")["Preço"].mean().reset_index()
+preco_medio_produto = preco_medio_produto.set_index("Produto") ["Preço"]
+preco_medio_produto = preco_medio_produto.round(2)
+
+produto_counts = produto_counts.reindex(preco_medio_produto.index, fill_value=0)
+
+def faturamento_por_produto ():
+  produto_faturado = produto_counts * preco_medio_produto
+  return produto_faturado
+
+faturamento_produto = faturamento_por_produto()
+```
+
+
+```{python}
+vendas_totais = faturamento_produto.sum()
+porcentagem_produto_faturamento = ( faturamento_produto / vendas_totais )*100
+
+tabela_faturamento = pd.DataFrame({
+    "Produto": produto_counts.index,
+    "Quantidade Vendida" : produto_counts.values,
+    "Preço Médio(R$)": preco_medio_produto.values,
+    "Faturamento(R$)" : faturamento_produto.values,
+    "% do Faturamento" : porcentagem_produto_faturamento.round(3)
+})
+
+tabela_faturamento = tabela_faturamento.sort_values(by = "Quantidade Vendida", ascending = False)
+
+tabela_faturamento["Preço Médio(R$)"]= tabela_faturamento["Preço Médio(R$)"].apply(
+    lambda x:f"R${x:,.2f}".replace(",","x").replace(".",",").replace("x", ".")
+)
+
+tabela_faturamento["Faturamento(R$)"]= tabela_faturamento["Faturamento(R$)"].apply(
+    lambda x:f"R${x:,.2f}".replace(",","x").replace(".",",").replace("x", ".")
+)
+
+tabela_faturamento["% do Faturamento"] = tabela_faturamento["% do Faturamento"].apply(lambda x: f"{x:,.3f}%")
+
+print(tabela_faturamento)
+```
+
+```{python}
+tabela_faturamento ["Faturamento(R$)"] = tabela_faturamento["Faturamento(R$)"].apply(lambda x: float (x.replace("R$", "").replace("." , "").replace(",", ".")))
+
+produto_top10 = tabela_faturamento.sort_values(by = "Quantidade Vendida", ascending= False).head(10)
+
+fig,ax1 = plt.subplots(figsize = (20, 10))
+
+ax1.bar(produto_top10["Produto"], produto_top10["Quantidade Vendida"], color = "blue", label = "Quantidade Vendida")
+ax1.set_ylabel("Quantidade Vendida", color = "skyblue")
+ax1.tick_params(axis = "y", labelcolor = "blue")
+
+
+ax2 = ax1.twinx()
+ax2.plot(produto_top10["Produto"], produto_top10["Faturamento(R$)"], color = "darkblue", marker = "o", label = "faturamento_produto")
+ax2.set_ylabel("Faturamento(R$)", color = "darkblue")
+ax2.tick_params(axis = "y", labelcolor ="darkblue")
+
+plt.title("Top 10 Produtos mais vendidos: Quantidade vs Faturamento")
+plt.xticks(rotation = 30, ha ="right", fontsize = 12)
+fig.tight_layout()
+
+fig.subplots_adjust(bottom =0.25)
+
+lines_1, labels_1 = ax1.get_legend_handles_labels()
+lines_2, labels_2 = ax2.get_legend_handles_labels()
+plt.legend(lines_1 + lines_2, labels_1 + labels_2, loc= "upper left")
+
+plt.show()
+```
+
+Com base nos dados analisados, constatamos que o Top 5 de produtos mais vendidos varia consideravelmente entre as unidades do grupo. As Lojas 3 e 4, em especial, apresentam um perfil de vendas focado em itens de menor valor agregado, com preços médios mais baixos em comparação ao Top 5 das Lojas 1 e 2. Essa diferença no mix de produtos vendidos influencia diretamente o desempenho financeiro dessas unidades.
+
+Apesar de manterem volumes de vendas expressivos, as Lojas 3 e 4 geram menor faturamento, justamente por concentrarem suas vendas em produtos de menor ticket médio. Esse padrão evidencia a importância de estratégias personalizadas por unidade, considerando o perfil do público atendido, a localização e o potencial de valorização do portfólio de produtos em cada loja.
+
+
+```{python}
+tabelas_por_loja =(
+    lojas_juntas
+    .groupby(["loja", "Produto"])
+    .agg(
+        Quantidade_Vendida = ("Produto", "count"),
+        Preço_Médio =("Preço", "mean"),
+        Faturamento = ("Preço", "sum")
+    )
+    .reset_index()
+)
+
+tabelas_por_loja["Preço_Médio"] = tabelas_por_loja["Preço_Médio"].apply(
+    lambda x: f"R${x:,.2f}".replace(",", "x").replace(".", ",").replace("x", ".")
+)
+
+tabelas_por_loja["Faturamento"] = tabelas_por_loja["Faturamento"]. apply(
+    lambda x: f"R${x:,.2f}".replace(",", "x").replace(".", ",").replace("x", ".")
+)
+
+
+lojas_disponiveis = tabelas_por_loja["loja"].unique()
+
+for loja in lojas_disponiveis:
+  dados_loja = tabelas_por_loja[tabelas_por_loja["loja"] == loja]
+
+  top5 = dados_loja.sort_values(by = "Quantidade_Vendida", ascending = False).head(5)
+  top5["Categoria"] = "Mais Vendidos"
+
+  bottom_5 = dados_loja.sort_values(by = "Quantidade_Vendida", ascending = True).head(5)
+  bottom_5["Categoria"] = "Menos Vendidos"
+
+
+  print(f"\n--- Tabela da {loja.upper()}---\n")
+
+  print(">> Mais Vendidos:" )
+  print(top5[["Produto", "Quantidade_Vendida", "Preço_Médio", "Faturamento"]].to_string(index = False))
+
+
+  print("\n>> Menos Vendidos")
+  print(bottom_5[["Produto", "Quantidade_Vendida", "Preço_Médio", "Faturamento"]].to_string(index = False))
+```
+
+Frete Médio por Loja
+
+De maneira geral, os gastos com frete no grupo AluraStore demonstram um alto nível de padronização entre as quatro unidades. Cada loja destinou, em média, 5,33% do seu faturamento para despesas com frete, o que evidencia a aplicação consistente da política logística definida pelo grupo. Essa uniformidade indica um controle eficiente dos custos operacionais e o alinhamento das unidades com os princípios estratégicos da empresa.
+
+No período analisado, o valor total desembolsado com fretes foi de R$ 312.930,66, distribuído de forma proporcional entre as lojas. A correlação direta entre o faturamento e os gastos com frete — ou seja, a loja que mais vende também é a que mais investe em logística — reforça a ausência de distorções ou desequilíbrios nesse aspecto. Esse cenário revela não apenas uma gestão eficiente dos custos logísticos, mas também a maturidade do grupo na aplicação de uma política operacional coerente, transparente e economicamente sustentável.
+
+
+```{python}
+#Cálculo do gastos com frete
+frete_total = lojas_juntas["Frete"].sum()
+print(f"Total gasto com frete do grupo(4 lojas): R${frete_total:,.2f}".replace(",", "x"). replace(".", ",").replace("x", "."))
+```
+
+
+```{python}
+#Gastos de frete por loja
+frete_por_loja = lojas_juntas.groupby("loja")["Frete"].sum().round(2)
+frete_por_loja_format = frete_por_loja.apply(lambda x :f"R${x:,.2f}".replace(",", "x").replace(".", ",").replace("x","."))
+frete_por_loja_format
+```
+
+
+```{python}
+frete_medio_loja =lojas_juntas.groupby("loja")["Frete"].mean().round(2)
+frete_medio_loja_format = frete_medio_loja.apply(lambda x: f"R${x: ,.2f}")
+frete_medio_loja_format
+```
+
+
+```{python}
+#calculando o faturamento(receita) sem formataçao
+receita_por_loja = lojas_juntas.groupby("loja")["Preço"].sum().round(2)
+
+# Quanto o gasto de cada loja implica no valor do frete do grupo
+porc_frete = ((frete_por_loja / frete_total) * 100).round(2)
+
+# porcentagem de gasto com frete rem relação ao faturamento da loja
+porc_frete_faturamento = ((frete_por_loja / receita_por_loja) * 100).round(2)
+
+lojas = frete_por_loja.index
+
+#lucro bruto estimado (faturamento - frete)
+lucro_bruto = (receita_por_loja - frete_por_loja).reindex(lojas)
+
+tabela_frete_faturamento = pd.DataFrame({
+    "Valor Médio do Frete": frete_medio_loja_format,
+    "Frete Total(R$)" : frete_por_loja,
+    "% do Frete Total" : porc_frete,
+    "Faturamento Total(R$)" : receita_por_loja,
+    "% Frete / Faturamento" : porc_frete_faturamento,
+    "Lucro Bruto Estimado(R$)" : lucro_bruto
+
+
+}).round(2)
+
+tabela_frete_faturamento["Frete Total(R$)"] = tabela_frete_faturamento[ "Frete Total(R$)"].apply(lambda x:f"R${x:,.2f}".replace(",", "x").replace(".",",").replace("x", ".") )
+tabela_frete_faturamento["% do Frete Total"] = tabela_frete_faturamento["% do Frete Total"].apply(lambda x: f"{x:,.2f}%")
+tabela_frete_faturamento["Faturamento Total(R$)"] = tabela_frete_faturamento["Faturamento Total(R$)"].apply(lambda x:f"R${x:,.2f}".replace(",", "x").replace(".", ",").replace("x", "."))
+tabela_frete_faturamento["% Frete / Faturamento"] = tabela_frete_faturamento["% Frete / Faturamento"].apply(lambda x: f"{x: ,.2f}%")
+tabela_frete_faturamento["Lucro Bruto Estimado(R$)"] = tabela_frete_faturamento["Lucro Bruto Estimado(R$)"].apply(lambda x: f"R${x: ,.2f}".replace(",", "x").replace(".", ",").replace("x", "."))
+
+print(tabela_frete_faturamento)
+```
+
+Dados geográficos
+
+O grupo AluraStore possui representatividade comercial em todas as regiões do Brasil e em todos os estados, o que demonstra um alcance nacional relevante. No entanto, observa-se uma forte concentração de clientes e faturamento na região Sudeste, destacando-se como o principal mercado do grupo. Diante disso, recomenda-se a ampliação da presença nas demais regiões do país, especialmente Norte, Nordeste e Centro-Oeste, com estratégias direcionadas de marketing, logística e expansão, visando equilibrar a distribuição geográfica das vendas e explorar o potencial de crescimento em mercados ainda subexplorados.
+
+
+```{python}
+venda_por_estado = {}
+
+for estado in lojas_juntas["Local da compra"]:
+  if estado in venda_por_estado:
+    venda_por_estado[estado] += 1
+
+  else:
+    venda_por_estado[estado] = 1
+
+for estado, quantidade in sorted(venda_por_estado.items()):
+  print(f"{estado} : {quantidade}")
+```
+
+
+```{python}
+sul = ["RS", "SC", "PR"]
+sudeste = ["SP", "RJ", "MG", "ES"]
+norte = ["AC", "AP", "AM", "PA", "RO", "RR", "TO"]
+nordeste = ["AL", "BA", "CE", "MA", "PB", "PE", "PI", "RN", "SE"]
+centro_oeste = ["DF", "GO", "MT", "MS"]
+
+vendas_por_regiao = {"Sul": 0, "Sudeste":0, "Norte": 0, "Nordeste": 0, "Centro-Oeste": 0}
+
+for estado in lojas_juntas["Local da compra"]:
+
+  if estado in sul:
+    vendas_por_regiao["Sul"] += 1
+
+  elif estado in sudeste:
+    vendas_por_regiao["Sudeste"] += 1
+
+  elif estado in norte:
+    vendas_por_regiao["Norte"] += 1
+
+  elif estado in nordeste:
+    vendas_por_regiao["Nordeste"] += 1
+
+  elif estado in centro_oeste:
+    vendas_por_regiao["Centro-Oeste"] +=1
+
+for regiao, quantidade in vendas_por_regiao.items():
+  print(f"{regiao}: {quantidade}")
+```
+
+
+```{python}
+venda_loja_regiao = {}
+
+for _, row in lojas_juntas.iterrows():
+  loja = row["loja"]
+  estado = row["Local da compra"]
+
+  if estado in sul:
+    regiao = "Sul"
+
+  elif estado in sudeste:
+    regiao = "Sudeste"
+
+  elif estado in norte:
+    regiao = "Norte"
+
+  elif estado in nordeste:
+    regiao = "Nordeste"
+
+  elif estado in centro_oeste:
+    regiao = "Centro-Oeste"
+
+  else:
+    continue
+
+  if loja not in venda_loja_regiao:
+    venda_loja_regiao[loja] = {"Sul": 0, "Sudeste":0, "Norte": 0, "Nordeste": 0, "Centro-Oeste": 0}
+
+  venda_loja_regiao[loja][regiao]  += 1
+
+tabela_vendas_regiao = pd.DataFrame(venda_loja_regiao).T.fillna(0).astype(int)
+print(tabela_vendas_regiao)
+```
+
+Consideraçoes Finais
+
+Com base na análise dos dados apresentados neste relatório, recomendamos ao Sr. João a descontinuação ou venda da Loja 4. A unidade apresenta o menor faturamento entre as quatro lojas do grupo e uma tendência consistente de queda nas receitas nos últimos dois anos — um sinal claro de perda de desempenho comercial.
+
+Além disso, embora o índice de satisfação do cliente da Loja 4 esteja próximo ao das demais unidades, ela ainda ocupa a terceira pior posição. Esse conjunto de fatores aponta possíveis falhas operacionais, de atendimento ou de adequação ao perfil da clientela local.
+
+Considerando o baixo faturamento, a tendência de queda e o desempenho inferior em satisfação, a continuidade da operação não se mostra vantajosa do ponto de vista estratégico. A venda da loja pode liberar recursos que seriam melhor aproveitados no fortalecimento de unidades mais rentáveis ou na expansão da marca em regiões com maior potencial de crescimento.
