@@ -1,0 +1,61 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "---\n",
+        "title: \"Relatorios\"\n",
+        "author: \"Elton Jorge\"\n",
+        "format: html\n",
+        "---\n",
+        "\n",
+        "\n",
+        "\n",
+        "\n",
+        "\n",
+        "\n",
+        "BIbliotecas:"
+      ],
+      "id": "527e0ae3"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "-m pip install jupyter\n",
+        "import panda as pd\n",
+        "import numpy as np\n",
+        "import plotnine as p9\n",
+        "from bcb import sgs"
+      ],
+      "id": "d046f9eb",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "DADOS:\n",
+        "\n",
+        "\n",
+        "dados = sgs.get(\n",
+        "   codes = {\"PIB\": 4192},\n",
+        "    start = pd.to_datetime(\"today\") - pd.DateOffset(years = 4)\n",
+        ")\n",
+        "dados"
+      ],
+      "id": "a41afce5"
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "display_name": "Python 3",
+      "language": "python",
+      "name": "python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}
